@@ -17,7 +17,7 @@
     
     
 ## TODOs - after 10/29/25
-* add R argparse to mamba env and container, add aria2 to both
+* add R argparse and aria2 to mamba env
 * discuss sex chromosome options, note that SEX column in PLINK file must be filled out
 * add PLINK2 to conda recipe - but needs to be OSX64 or linux?
 * TODO in future - convert this to Nextflow?
