@@ -17,7 +17,7 @@
     
     
 ## TODOs - after 10/29/25
-* add R argparse to mamba env and container
+* add R argparse to mamba env and container, add aria2 to both
 * discuss sex chromosome options, note that SEX column in PLINK file must be filled out
 * add PLINK2 to conda recipe - but needs to be OSX64 or linux?
 * TODO in future - convert this to Nextflow?
@@ -28,6 +28,10 @@
 * better initial variant number logging when not running all chr?
 * get job-id from log files
 * update create_initial_input log file to count all non-chr6 HWE (vs all chr HWE)
+* split into two snakefiles - one pre- and one post-QC (would help with post QC paths
+    being different)
+* need to remove imputed files that don't want to keep
+* need to confirm download works for Michigan imputation
 
 
 ## **imputation_snakemake**
