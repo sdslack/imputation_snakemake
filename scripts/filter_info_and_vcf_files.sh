@@ -13,11 +13,12 @@
 set -e
 set -u
 
-while getopts n:r:m:d:o: opt; do
+while getopts n:r:m:p:d:o: opt; do
    case "${opt}" in
       n) chr=${OPTARG};;
       r) rsq=${OPTARG};;
       m) maf=${OPTARG};;
+      p) plink_prefix=${OPTARG};;
       d) dir=${OPTARG};;
       o) option=${OPTARG};;
       \?) echo "Invalid option -$OPTARG" >&2
@@ -44,17 +45,28 @@ bcftools filter -i \
 bcftools query -f '%ID\n' \
     "${out_dir}/chr${chr}_clean.info" > "${out_dir}/chr${chr}_maf${maf}_rsq${rsq}_snps.txt"
 
-# if option set to use PLINK for only GT
+# If option set to use PLINK for only GT
 if [ "$option" = "gt" ]; then
     # Filter VCF to these IDs using PLINK, keeping GT
-    plink2 --vcf "${in_dir}/chr${chr}.dose.vcf.gz" \
-    --export vcf 'bgz' \
-    --extract "${out_dir}/chr${chr}_maf${maf}_rsq${rsq}_snps.txt" \
-    --out "${out_dir}/tmp_chr${chr}_clean"
+    if [ "$chr" = "X" ]; then
+        # If chrX, PLINK throws error without sex information
+        plink2 --vcf "${in_dir}/chr${chr}.dose.vcf.gz" \
+            --export vcf 'bgz' \
+            --extract "${out_dir}/chr${chr}_maf${maf}_rsq${rsq}_snps.txt" \
+            --id-delim '_' \
+            --fam "${plink_prefix}.fam" \
+            --out "${out_dir}/tmp_chr${chr}_clean"
+    else
+        plink2 --vcf "${in_dir}/chr${chr}.dose.vcf.gz" \
+            --export vcf 'bgz' \
+            --extract "${out_dir}/chr${chr}_maf${maf}_rsq${rsq}_snps.txt" \
+            --out "${out_dir}/tmp_chr${chr}_clean"
+    fi
 
 # if want to keep all dosage information, use bcftools (much slower)
 elif [ "$option" = "all" ]; then
     # Filter VCF to these IDs using bcftools
+    # NOTE: will add sex information at conversion to PLINK in later script
     bcftools view --include ID==@"$snp_list" "${in_dir}/chr${chr}.dose.vcf.gz" \
         -Oz -o "${out_dir}/tmp_chr${chr}_clean.vcf.gz"
 fi
