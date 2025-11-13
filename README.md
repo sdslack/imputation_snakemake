@@ -17,11 +17,8 @@
     
     
 ## TODOs - after 10/29/25
-* add R argparse and aria2 to mamba env
 * discuss sex chromosome options, note that SEX column in PLINK file must be filled out
-* add PLINK2 to conda recipe - but needs to be OSX64 or linux?
-* TODO in future - convert this to Nextflow?
-* awknowledge that better than duplicate removal would be to consider fixin mismapped
+* awknowledge that better than duplicate removal would be to consider fixing mismapped
     SNPs using reference panel... potential future step
 * add note that create initial input should be run twice so that plot with sex checks
     can be examined and thresholds can be adjusted
@@ -56,7 +53,18 @@ apptainer build envs/topmed_imputation.sif envs/topmed_imputation.def
 
 ### Conda Environment
 
-TODO: add instructions to use the recipe file at envs/env_imputation_snakemake.yml
+To build mamba environment on a linux-64 or osx-64 operating system, run:
+
+```
+mamba env create -f envs/env_imputation.yml
+```
+
+If running on an osx-arm64, use need to use an osx-64 subdir to ensure
+package availability (as of 11/12/2025, for PLINK2):
+
+```
+CONDA_SUBDIR=osx-64 mamba env create -f env_imputation.yml
+```
 
 ## Input Files
 
