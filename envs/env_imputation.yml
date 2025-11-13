@@ -1,4 +1,4 @@
-name: imputation_snakemake
+name: imputation
 channels:
   - conda-forge
   - bioconda
@@ -11,3 +11,9 @@ dependencies:
   - bioconda::bcftools=1.22
   - bioconda::crossmap=0.7.3
   - bioconda::vcftools=0.1.17
+  - bioconda::plink
+  - bioconda::plink2
+  - conda-forge::r-base
+  - conda-forge::r-essentials
+  - conda-forge::r-argparse
+  - conda-forge::jq

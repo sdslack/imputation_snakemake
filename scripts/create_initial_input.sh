@@ -707,7 +707,8 @@ done
 check_file_exists "${out_dir}/pre_qc.bim"
 ct_var_final=$(awk 'END{print NR}' "${out_dir}/pre_qc.bim")
 ct_samp_final=$(awk 'END{print NR}' "${out_dir}/pre_qc.fam")
-ct_ambig_rm=$((ct_var_liftover - ct_var_final))
+ct_before_ambig=$(awk 'END{print NR}' "${out_dir}/tmp_liftover.bim")
+ct_ambig_rm=$((ct_before_ambig - ct_var_final))
 echo -e "Imputation-Prep\tRemove ambiguous A/T C/G SNPs\t()\t(${ct_ambig_rm})" >> "$log_file"
 echo -e "Summary\tFinal data counts\t${ct_samp_final}\t${ct_var_final}" >> "$log_file"
 
