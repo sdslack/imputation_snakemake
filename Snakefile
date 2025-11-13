@@ -221,7 +221,7 @@ rule unzip_results_helper:
         """
         bash {params.script} \
             -d {out_dir}/imputed \
-            -p {zip_pw} \
+            -p "{zip_pw}" \
             -c {wildcards.chr} \
             > {log} 2>&1
         """
