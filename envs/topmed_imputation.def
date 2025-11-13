@@ -31,7 +31,8 @@ From: python:3.11-slim-bookworm
         p7zip-full \
         curl \
         graphviz \
-	openjdk-17-jdk
+	    openjdk-17-jdk \
+        aria2
 
     # CrossMap
     pip3 install --upgrade pip
@@ -42,6 +43,9 @@ From: python:3.11-slim-bookworm
 
     # Pulp - version pinned to 2.7.0 due to list solvers bug
     pip3 install pulp==2.7.0
+
+    # Install R argparse
+    Rscript -e 'install.packages("argparse", repos="https://cloud.r-project.org/")'
 
     # plink 1.9
     wget https://s3.amazonaws.com/plink1-assets/plink_linux_x86_64_latest.zip  && \

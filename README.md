@@ -17,7 +17,7 @@
     
     
 ## TODOs - after 10/29/25
-* add R argparse to mamba env and container
+* add R argparse and aria2 to mamba env
 * discuss sex chromosome options, note that SEX column in PLINK file must be filled out
 * add PLINK2 to conda recipe - but needs to be OSX64 or linux?
 * TODO in future - convert this to Nextflow?
@@ -31,6 +31,10 @@
     SNP dedup, HWE and imputation prep only done for requested chr to prepare
 * add note that chrY can be prepared but not imputed
 * add concat_convert_to_plink as main option
+* split into two snakefiles - one pre- and one post-QC (would help with post QC paths
+    being different)
+* need to remove imputed files that don't want to keep
+* need to confirm download works for Michigan imputation
 
 
 ## **imputation_snakemake**

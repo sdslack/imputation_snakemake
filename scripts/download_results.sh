@@ -1,10 +1,7 @@
 #!/bin/bash
 
-# Use imputationbot to download results.
-# Need version 1 for TOPMed imputation, version 2 for Michigan
-
-# Set up instance automatically, based on
-# https://github.com/UW-GAC/primed-imputation/blob/main/register_token.sh
+# TO NOTE: Need to use different host paths to retreive job/file information
+# then to make downloadable links.
 
 # Parse args
 while getopts "i:c:o:j:" opt; do
@@ -17,36 +14,35 @@ while getopts "i:c:o:j:" opt; do
   esac
 done
 
-# Setup instance
+# Setup
 cd "$code_dir"
-export TOPMED_API=$(python -c "import config.key as k; print(k.TOPMED_API)")
-export MICH_API=$(python -c "import config.key as k; print(k.MICH_API)")
 
-# TODO: revisit avoid re-downloading every time
-mkdir ~/.imputationbot
+# Based on server, set host name and get API key
+host_i=""
+host_d=""
+key=""
 if [ "$imp" = "topmed" ]; then
-    echo "Downloading imputationbot version for TOPMed."
-    curl -sL https://raw.githubusercontent.com/lukfor/imputationbot/refs/heads/master/install/github-downloader.sh | bash
-    printf -- "-  hostname: https://imputation.biodatacatalyst.nhlbi.nih.gov\n   token: " > ~/.imputationbot/imputationbot.instances
-    echo $TOPMED_API >> ~/.imputationbot/imputationbot.instances
+  host_i="https://imputation.biodatacatalyst.nhlbi.nih.gov/api/v2"
+  host_d="https://imputation.biodatacatalyst.nhlbi.nih.gov"
+  key=$(python -c "import config.key as k; print(k.TOPMED_API)")
+
 else
-    echo "Downloading imputationbot version for Michigan imputation."
-    curl -sL https://raw.githubusercontent.com/lukfor/imputationbot/c752684bf8edaeb115e929f98206856d6ec27ac7/install/github-downloader-v2.sh | bash
-    printf -- "-  hostname: https://imputationserver.sph.umich.edu\n   token: " > ~/.imputationbot/imputationbot.instances
-    echo $MICH_API >> ~/.imputationbot/imputationbot.instances
+  host_i="https://imputationserver.sph.umich.edu/api/v2"
+  host_d="https://imputationserver.sph.umich.edu"
+  key=$(python -c "import config.key as k; print(k.MICH_API)")
 fi
 
-# Download results
-cd "$out_dir"
-${code_dir}/imputationbot download "$job_id"
+# Get initial json with file information
+curl -s -H "X-Auth-Token: $key" \
+  "${host_i}/jobs/${job_id}" > ${out_dir}/job_metadata.json
 
-# Move out of imputationbot-created subfolders
-mv job*/local/* .
-mv job*/logfile/* .
-mv job*/qcreport/* .
-mv job*/statisticDir/* .
-rm -r job*
+# Use json to make downloadable links
+  #TODO: this pattern works for TOPMed, need to confirm for Mich!
+jq -r --arg host "$host_d" '.outputParams[].files[] | "\($host)/share/results/\(.hash)/\(.name)"' \
+  ${out_dir}/job_metadata.json > ${out_dir}/job_download_links.txt
 
-# Remove imputationbot installation
-rm -r ${code_dir}/imputationbot*
-rm -r ~/.imputationbot
+# Download with aria2 (recommended by server)
+# Raise --min-split-size to avoid hitting imputation server download limit
+aria2c \
+  -j 4 -x 4 --split 4 --min-split-size=1G --continue=true \
+  -i "${out_dir}/job_download_links.txt" -d "${out_dir}"

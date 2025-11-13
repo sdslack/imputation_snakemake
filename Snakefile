@@ -122,7 +122,6 @@ rule submit_initial_input:
         mv {params.log_tmp} {output.log_final}
         """
 
-#TODO: this rule still needs to be tested
 rule download_qc:
     output:
         log_final=f"{out_dir}/pre_qc/download_qc.log",
@@ -187,6 +186,7 @@ rule submit_fix_strands:
         """
 
 rule download_results:
+    threads: 16
     output:
         [f"{out_dir}/imputed/chr_{c}.zip" for c in chr_noY]
     log:
@@ -246,6 +246,7 @@ rule filter_info_and_vcf_files_helper:
             -n {wildcards.chr} \
             -r {rsq} \
             -m {maf} \
+            -p {out_dir}/pre_qc/pre_qc \
             -d {out_dir} \
             -o {opt} \
            > {log} 2>&1
@@ -265,6 +266,7 @@ rule concat_convert_to_plink:
     shell:
         """
         bash {params.script} \
+            -p {out_dir}/pre_qc/pre_qc \
             -d {out_dir}/imputed_clean_maf{maf}_rsq{rsq} \
             > {log} 2>&1
         """
